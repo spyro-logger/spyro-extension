@@ -1,0 +1,13 @@
+{
+  "short_name": "Spyro",
+  "name": "Spryo",
+  "version": "1.0",
+  "description": "Tool used for logging splunk issues in JIRA",
+  "manifest_version": 2,
+  "start_url": ".",
+  "browser_action": {
+    "default_popup": "index.html?page=Popup"
+  },
+  "options_page": "index.html?page=Options",
+  "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
+}
