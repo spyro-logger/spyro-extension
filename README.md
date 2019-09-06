@@ -5,7 +5,7 @@ A Chrome extension for working with a combination of JIRA and Splunk to create e
 This project is created with the following fundamental design choices:
 
 ### Shared Configuration
-A single shared configuration, meaning everyone is alwasy logging issues and creating event types consistently with others using the same configuration.
+A single shared configuration, meaning everyone is always logging issues and creating event types consistently with others using the same configuration.
 
 ### Simple
 When creating events and issues, the only thing that someone should have to think about is the Splunk search that defines the event type (as this is the part that generally requires a person's participation).  
