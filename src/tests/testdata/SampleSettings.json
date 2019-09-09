@@ -1,0 +1,54 @@
+{
+  "shared": {
+    "splunk": {
+      "instances": [
+        {
+          "key": "splunk1",
+          "url": "http://splunk.com",
+          "apiUrl": "http://splunk.com/api"
+        },
+        {
+          "key": "splunk2",
+          "url": "http://splunk2.com",
+          "apiUrl": "http://splunk2.com/api"
+        }
+      ]
+    },
+    "jira": {
+      "instances": [
+        {
+          "key": "jira1",
+          "issueUrl": "https://jira1.com/browse/",
+          "restApiUrl": "https://jira1.com/rest/api/latest"
+        },
+        {
+          "key": "jira2",
+          "issueUrl": "https://jira2.com/browse/",
+          "restApiUrl": "https://jira2.com/rest/api/latest"
+        }
+      ]
+    }
+  },
+  "issueTemplates": [
+    {
+      "name": "Team 1 Prod Issue",
+      "jiraInstance": "jira1",
+      "splunkInstance": "splunk2",
+      "fieldValues": {
+        "project": "MAVEN",
+        "customfield_1234": "1234",
+        "customfield_456": "5292"
+      }
+    },
+    {
+      "name": "Team 2 Prod Issue",
+      "jiraInstance": "jira2",
+      "splunkInstance": "splunk1",
+      "fieldValues": {
+        "project": "MAVEN3",
+        "customfield_988": "asdf",
+        "customfield_456": "5292"
+      }
+    }
+  ]
+}
