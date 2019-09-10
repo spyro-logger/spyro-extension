@@ -1,4 +1,4 @@
-import SettingsUtility from '../../utils/SettingsUtility';
+import SettingsUtility from '../../main/utils/SettingsUtility';
 import sampleSettings from '../testdata/SampleSettings';
 
 describe('SettingsUtility', () => {
