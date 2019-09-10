@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import CredentialsTable from './CredentialsTable';
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(1),
   },
 }));
 
 const OptionsForm = (props) => {
   const { onSave, statuses, configuration } = props;
 
-  const [settingsRepositoryUrl, setSettingsRepositoryUrl] = useState(configuration.settingsRepositoryUrl);
+  const [settingsUrl, setSettingsRepositoryUrl] = useState(configuration.settingsRepositoryUrl);
   const classes = useStyles();
 
   const onInputChange = (event) => {
@@ -31,26 +33,39 @@ const OptionsForm = (props) => {
 
   const handleFormSubmit = () => {
     const formValues = {
-      settingsRepositoryUrl,
+      settingsRepositoryUrl: settingsUrl,
     };
     onSave(formValues);
   };
 
   return (
     <div>
-      <TextField
-        label="Settings Github Repository"
-        name="settings-repository"
-        id="settings-repository-field"
-        onChange={onInputChange}
-        value={settingsRepositoryUrl}
-        fullWidth
-        error={statuses.settingsFetchErrorOccurred}
-        helperText={statuses.settingsFetchErrorOccurred ? 'Error fetching settings' : ''}
-      />
-      <Button variant="contained" color="primary" type="submit" className={classes.button} onClick={handleFormSubmit}>
-        Save
-      </Button>
+      <Grid container spacing={3}>
+        <Grid item xs={10} sm={11}>
+          <TextField
+            fullWidth
+            label="Settings URL"
+            name="settings-file"
+            id="settings-file-field"
+            onChange={onInputChange}
+            value={settingsUrl}
+            error={statuses.settingsFetchErrorOccurred}
+            helperText={statuses.settingsFetchErrorOccurred ? 'Error fetching settings' : ''}
+          />
+        </Grid>
+        <Grid item xs={2} sm={1}>
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            className={classes.button}
+            onClick={handleFormSubmit}
+            fullWidth
+          >
+            Save
+          </Button>
+        </Grid>
+      </Grid>
     </div>
   );
 };
