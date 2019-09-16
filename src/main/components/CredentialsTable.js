@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -9,8 +10,11 @@ import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
+import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 
 import CredentialsModificationDialog from './CredentialsModificationDialog';
+import Typography from '@material-ui/core/Typography';
+import { SettingsContext } from './SettingsContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,59 +32,82 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
     float: 'right',
   },
+  noEntriesContainer: {
+    padding: theme.spacing(3),
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noEntriesIcon: {
+    height: 50,
+    width: 'auto',
+  },
 }));
 
-const rows = [
-  {
-    username: 'dv297',
-    instances: ['jira1', 'jira2'],
-  },
-  {
-    username: 'singleton06',
-    instances: ['splunk1'],
-  },
-];
-
-const CredentialsTable = () => {
+const CredentialsTable = (props) => {
+  const { sharedInstancesConfiguration } = props;
   const classes = useStyles();
   const [isCredentialsModificationDialogOpen, setIsCredentialsModificationDialogOpen] = useState(false);
+  const { credentials, actions } = useContext(SettingsContext);
 
   return (
     <>
-      <Paper className={classes.root}>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Credential Username</TableCell>
-              <TableCell>Instance(s) Associated To</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell component="th" scope="row">
-                  {row.username}
-                </TableCell>
-                <TableCell>
-                  {row.instances.map((instance) => (
-                    <Chip
-                      label={instance}
-                      key={instance}
-                      variant="outlined"
-                      size="small"
-                      className={classes.jiraInstanceChip}
-                    />
-                  ))}
-                </TableCell>
+      {credentials.length === 0 ? (
+        <Paper className={classes.noEntriesContainer}>
+          <DescriptionOutlinedIcon className={classes.noEntriesIcon} />
+          <Typography variant="h5" component="h2">
+            No Credentials Saved
+          </Typography>
+          <Typography variant="h6" component="h3">
+            Click "Add Credentials" to get started
+          </Typography>
+        </Paper>
+      ) : (
+        <Paper className={classes.root}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Credential Username</TableCell>
+                <TableCell>Instance(s) Associated To</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
+            </TableHead>
+            <TableBody>
+              {credentials.map((credentialEntry, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row">
+                    {credentialEntry.username}
+                  </TableCell>
+                  <TableCell>
+                    {credentialEntry.associatedTo.map((instance) => (
+                      <Chip
+                        label={instance}
+                        key={instance}
+                        variant="outlined"
+                        size="small"
+                        className={classes.jiraInstanceChip}
+                      />
+                    ))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Paper>
+      )}
       <CredentialsModificationDialog
         isOpen={isCredentialsModificationDialogOpen}
         onCancel={() => setIsCredentialsModificationDialogOpen(false)}
-        onSave={() => setIsCredentialsModificationDialogOpen(false)}
+        onSave={(values) => {
+          console.log(values);
+          actions.addCredentialEntry({
+            username: values.username,
+            password: values.password,
+            associatedTo: [...values.selectedJiraInstances, ...values.selectedSplunkInstances],
+          });
+          setIsCredentialsModificationDialogOpen(false);
+        }}
+        sharedInstancesConfiguration={sharedInstancesConfiguration}
       />
       <Button onClick={() => setIsCredentialsModificationDialogOpen(true)} className={classes.addCredentialsButton}>
         <AddIcon />
@@ -88,6 +115,28 @@ const CredentialsTable = () => {
       </Button>
     </>
   );
+};
+
+const SharedInstanceShape = {
+  key: PropTypes.string.isRequired,
+};
+
+CredentialsTable.propTypes = {
+  sharedInstancesConfiguration: PropTypes.shape({
+    splunk: PropTypes.shape({
+      instances: PropTypes.arrayOf(PropTypes.shape(SharedInstanceShape)),
+    }),
+    jira: PropTypes.shape({
+      instances: PropTypes.arrayOf(PropTypes.shape(SharedInstanceShape)),
+    }),
+  }),
+};
+
+CredentialsTable.defaultProps = {
+  sharedInstancesConfiguration: {
+    splunk: [],
+    jira: [],
+  },
 };
 
 export default CredentialsTable;

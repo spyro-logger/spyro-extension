@@ -6,6 +6,8 @@ import { SettingsContextProvider } from './SettingsContext';
 import OptionsForm from './OptionsForm';
 import CredentialsTable from './CredentialsTable';
 import { makeStyles } from '@material-ui/core';
+import Paper from '@material-ui/core/Paper';
+import DescriptionOutlinedIcon from '@material-ui/core/SvgIcon/SvgIcon';
 
 const useStyles = makeStyles((theme) => ({
   optionsFormContainer: {
@@ -20,7 +22,11 @@ const Options = () => {
     <main>
       <SettingsContextProvider>
         {(settingsContext) => {
-          const { actions, configuration, statuses } = settingsContext;
+          const { actions, configuration, statuses, settings } = settingsContext;
+          const checkIfThereAreInstances = (type) =>
+            settings.shared[type] && settings.shared[type].instances && settings.shared[type].instances.length > 0;
+          const shouldShowCredentialsSection =
+            settings && settings.shared && (checkIfThereAreInstances('jira') || checkIfThereAreInstances('splunk'));
           return (
             <Container>
               <Typography variant="h4" component="h1" gutterBottom>
@@ -33,12 +39,27 @@ const Options = () => {
                   onSave={(formValues) => {
                     actions.setSettingsRepositoryUrl(formValues.settingsRepositoryUrl);
                   }}
+                  settings={settings}
                 />
               </div>
-              <Typography variant="h5" component="h2" gutterBottom>
-                Credentials
-              </Typography>
-              <CredentialsTable />
+              {shouldShowCredentialsSection ? (
+                <>
+                  <Typography variant="h5" component="h2" gutterBottom>
+                    Credentials
+                  </Typography>
+                  <CredentialsTable sharedInstancesConfiguration={settings.shared} />
+                </>
+              ) : (
+                <Paper className={classes.noEntriesContainer}>
+                  <DescriptionOutlinedIcon className={classes.noEntriesIcon} />
+                  <Typography variant="h5" component="h2">
+                    No Jira or Splunk instances were found in the specified settings URL
+                  </Typography>
+                  <Typography variant="h6" component="h3">
+                    For more information, see the "External Settings Structure" documentation
+                  </Typography>
+                </Paper>
+              )}
             </Container>
           );
         }}
