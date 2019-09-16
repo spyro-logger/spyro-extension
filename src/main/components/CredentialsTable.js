@@ -60,7 +60,7 @@ const CredentialsTable = (props) => {
             No Credentials Saved
           </Typography>
           <Typography variant="h6" component="h3">
-            Click "Add Credentials" to get started
+            Click "Add Credential" to get started
           </Typography>
         </Paper>
       ) : (

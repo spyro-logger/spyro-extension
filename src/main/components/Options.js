@@ -7,11 +7,22 @@ import OptionsForm from './OptionsForm';
 import CredentialsTable from './CredentialsTable';
 import { makeStyles } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
-import DescriptionOutlinedIcon from '@material-ui/core/SvgIcon/SvgIcon';
+import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 
 const useStyles = makeStyles((theme) => ({
   optionsFormContainer: {
     marginBottom: theme.spacing(4),
+  },
+  noEntriesContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing(1),
+  },
+  noEntriesIcon: {
+    height: 50,
+    width: 'auto',
   },
 }));
 

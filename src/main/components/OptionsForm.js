@@ -21,7 +21,7 @@ const OptionsForm = (props) => {
     const value = event.target.value;
 
     switch (event.target.name) {
-      case 'settings-repository': {
+      case 'settings-file': {
         return setSettingsRepositoryUrl(value);
       }
       default: {
