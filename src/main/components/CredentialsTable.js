@@ -99,7 +99,6 @@ const CredentialsTable = (props) => {
         isOpen={isCredentialsModificationDialogOpen}
         onCancel={() => setIsCredentialsModificationDialogOpen(false)}
         onSave={(values) => {
-          console.log(values);
           actions.addCredentialEntry({
             username: values.username,
             password: values.password,
