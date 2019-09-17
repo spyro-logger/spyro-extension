@@ -95,12 +95,19 @@ const WaitForInitialValuesGate = (settingsContextProviderProps) => {
       const settingsRepositoryUrlFromStorage = await Storage.getItem(LOCAL_STORAGE_SETTINGS_REPOSITORY_URL_KEY);
       const settingsFromStorage = await Storage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
       const credentialsFromStorage = await Storage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
-      const initialSettingsRepositoryUrl = settingsRepositoryUrlFromStorage || '';
-      const initialSettings = JSON.parse(settingsFromStorage) || {};
-      const initialCredentials = JSON.parse(credentialsFromStorage) || [];
-      setSettingsRepositoryUrl(initialSettingsRepositoryUrl);
-      setSettings(initialSettings);
-      setCredentials(initialCredentials);
+      try {
+        const initialSettingsRepositoryUrl = settingsRepositoryUrlFromStorage || '';
+        const initialSettings = JSON.parse(settingsFromStorage) || {};
+        const initialCredentials = JSON.parse(credentialsFromStorage) || [];
+        setSettingsRepositoryUrl(initialSettingsRepositoryUrl);
+        setSettings(initialSettings);
+        setCredentials(initialCredentials);
+      } catch (e) {
+        console.error(e);
+        setSettingsRepositoryUrl('');
+        setSettings({});
+        setCredentials([]);
+      }
     };
 
     fetchSettingsFromStorage();
