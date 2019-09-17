@@ -6,6 +6,7 @@ import useInterval from '../hooks/useInterval';
 
 const LOCAL_STORAGE_SETTINGS_KEY = `${APPLICATION_NAME}Settings`;
 const LOCAL_STORAGE_SETTINGS_REPOSITORY_URL_KEY = `${APPLICATION_NAME}SettingsRepositoryUrl`;
+const LOCAL_STORAGE_CREDENTIALS_KEY = `${APPLICATION_NAME}Credentials`;
 const MILLISECONDS_IN_ONE_MINUTE = 60000;
 const POLLING_INTERVAL = 15 * MILLISECONDS_IN_ONE_MINUTE;
 
@@ -16,6 +17,7 @@ const SettingsContextProvider = (props) => {
   const [settingsRepositoryUrl, setSettingsRepositoryUrl] = useState(initialValues.settingsRepositoryUrl);
   const [settings, setSettings] = useState(initialValues.settings);
   const [settingsFetchErrorOccurred, setSettingsFetchErrorOccurred] = useState(false);
+  const [credentials, setCredentials] = useState(initialValues.credentials);
 
   const saveSettings = (settingsToSave) => {
     setSettings(settingsToSave);
@@ -25,6 +27,12 @@ const SettingsContextProvider = (props) => {
   const saveSettingsRepositoryUrl = (repositoryUrlToSave) => {
     setSettingsRepositoryUrl(repositoryUrlToSave);
     Storage.setItem(LOCAL_STORAGE_SETTINGS_REPOSITORY_URL_KEY, repositoryUrlToSave);
+  };
+
+  const addCredentialEntry = (credentialToAdd) => {
+    const updatedCredentials = [...credentials, credentialToAdd];
+    setCredentials(updatedCredentials);
+    Storage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials));
   };
 
   const initializeSettings = useCallback(async () => {
@@ -59,10 +67,12 @@ const SettingsContextProvider = (props) => {
     },
     actions: {
       setSettingsRepositoryUrl: saveSettingsRepositoryUrl,
+      addCredentialEntry,
     },
     statuses: {
       settingsFetchErrorOccurred,
     },
+    credentials,
   };
 
   if (typeof props.children === 'function') {
@@ -78,27 +88,39 @@ const SettingsContextProvider = (props) => {
 const WaitForInitialValuesGate = (settingsContextProviderProps) => {
   const [settingsRepositoryUrl, setSettingsRepositoryUrl] = useState(null);
   const [settings, setSettings] = useState(null);
+  const [credentials, setCredentials] = useState(null);
 
   useEffect(() => {
     const fetchSettingsFromStorage = async () => {
       const settingsRepositoryUrlFromStorage = await Storage.getItem(LOCAL_STORAGE_SETTINGS_REPOSITORY_URL_KEY);
       const settingsFromStorage = await Storage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
-      const initialSettingsRepositoryUrl = settingsRepositoryUrlFromStorage || '';
-      const initialSettings = JSON.parse(settingsFromStorage) || {};
-      setSettingsRepositoryUrl(initialSettingsRepositoryUrl);
-      setSettings(initialSettings);
+      const credentialsFromStorage = await Storage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+      try {
+        const initialSettingsRepositoryUrl = settingsRepositoryUrlFromStorage || '';
+        const initialSettings = JSON.parse(settingsFromStorage) || {};
+        const initialCredentials = JSON.parse(credentialsFromStorage) || [];
+        setSettingsRepositoryUrl(initialSettingsRepositoryUrl);
+        setSettings(initialSettings);
+        setCredentials(initialCredentials);
+      } catch (e) {
+        console.error(e);
+        setSettingsRepositoryUrl('');
+        setSettings({});
+        setCredentials([]);
+      }
     };
 
     fetchSettingsFromStorage();
   }, []);
 
-  if (!settings) {
+  if (!settings || !credentials) {
     return null;
   }
 
   const initialValues = {
     settingsRepositoryUrl: () => settingsRepositoryUrl,
     settings: () => settings,
+    credentials: () => credentials,
   };
 
   return <SettingsContextProvider {...settingsContextProviderProps} initialValues={initialValues} />;
