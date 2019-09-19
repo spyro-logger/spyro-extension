@@ -1,15 +1,18 @@
 import queryString from 'query-string';
-import ServiceFactory from '../service-factory';
+import SplunkClient from '../SplunkClient';
 
 async function loadJobDetails(searchId) {
   console.log('MY SID: ' + searchId);
-  var splunkJobDetailsRetriever = ServiceFactory.splunkJobDetailsRetriever();
+  let splunkJobDetailsRetriever = SplunkClient.splunkJobDetailsRetriever();
 
   //TODO: Place holders until we read splunkAPIURL, splunkApp and auth
-  var splunkAPIURL = '';
-  var splunkApp = '';
-  const auth = { username: 'xxx', password: 'xxx' };
-  splunkJobDetailsRetriever({ splunkAPIURL, splunkApp, searchId, auth }).then((response) => {
+  const splunkAPIURL = '';
+  const splunkApp = '';
+  let credential;
+  credential.username = 'xxx';
+  credential.password = 'xxx';
+
+  splunkJobDetailsRetriever({ splunkAPIURL, splunkApp, searchId, credential }).then((response) => {
     //TODO: Filter reply to return fields needed eventCount, eventContent, sid, searchTimeRange and searchString
 
     console.log('RESPONSE: ' + JSON.stringify(response));
