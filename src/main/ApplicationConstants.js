@@ -3,4 +3,6 @@
  * store anything that might be used to tag the application in situations like logging.
  */
 
-export const APPLICATION_NAME = 'spyro';
+const APPLICATION_NAME = 'spyro';
+
+export default { APPLICATION_NAME };

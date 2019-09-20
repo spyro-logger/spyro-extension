@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,9 +11,12 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 
-import CredentialsModificationDialog from './CredentialsModificationDialog';
 import Typography from '@material-ui/core/Typography';
+import CredentialsModificationDialog from './CredentialsModificationDialog';
 import { SettingsContext } from './SettingsContext';
+import SharedInstancesConfigurationShape, {
+  SharedInstancesConfigurationDefaultValue,
+} from '../proptypes/SharedInstancesConfiguration';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,7 +62,7 @@ const CredentialsTable = (props) => {
             No Credentials Saved
           </Typography>
           <Typography variant="h6" component="h3">
-            Click "Add Credential" to get started
+            Click &quot;Add Credential&quot; to get started
           </Typography>
         </Paper>
       ) : (
@@ -74,6 +76,7 @@ const CredentialsTable = (props) => {
             </TableHead>
             <TableBody>
               {credentials.map((credentialEntry, index) => (
+                // eslint-disable-next-line react/no-array-index-key
                 <TableRow key={index}>
                   <TableCell component="th" scope="row">
                     {credentialEntry.username}
@@ -116,26 +119,12 @@ const CredentialsTable = (props) => {
   );
 };
 
-const SharedInstanceShape = {
-  key: PropTypes.string.isRequired,
-};
-
 CredentialsTable.propTypes = {
-  sharedInstancesConfiguration: PropTypes.shape({
-    splunk: PropTypes.shape({
-      instances: PropTypes.arrayOf(PropTypes.shape(SharedInstanceShape)),
-    }),
-    jira: PropTypes.shape({
-      instances: PropTypes.arrayOf(PropTypes.shape(SharedInstanceShape)),
-    }),
-  }),
+  sharedInstancesConfiguration: SharedInstancesConfigurationShape,
 };
 
 CredentialsTable.defaultProps = {
-  sharedInstancesConfiguration: {
-    splunk: [],
-    jira: [],
-  },
+  sharedInstancesConfiguration: SharedInstancesConfigurationDefaultValue,
 };
 
 export default CredentialsTable;

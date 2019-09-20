@@ -12,6 +12,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import SharedInstancesConfigurationShape from '../proptypes/SharedInstancesConfiguration';
 
 const InstancesList = (props) => {
   const { idLabel, instances, selectedInstances, onInstanceClick } = props;
@@ -33,6 +34,17 @@ const InstancesList = (props) => {
   );
 };
 
+InstancesList.propTypes = {
+  idLabel: PropTypes.string.isRequired,
+  instances: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  selectedInstances: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onInstanceClick: PropTypes.func.isRequired,
+};
+
 const CredentialsModificationForm = (props) => {
   const {
     onCancel,
@@ -50,7 +62,7 @@ const CredentialsModificationForm = (props) => {
   const splunkInstances = sharedInstancesConfiguration.splunk.instances;
 
   const onInputChange = (event) => {
-    const value = event.target.value;
+    const { value } = event.target;
     switch (event.target.id) {
       case 'username': {
         setUsername(value);
@@ -143,11 +155,11 @@ const CredentialsModificationForm = (props) => {
 };
 
 CredentialsModificationForm.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   username: PropTypes.string,
   password: PropTypes.string,
+  sharedInstancesConfiguration: SharedInstancesConfigurationShape.isRequired,
 };
 
 CredentialsModificationForm.defaultProps = {
