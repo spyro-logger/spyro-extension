@@ -2,12 +2,12 @@ import React from 'react';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 
-import { SettingsContextProvider } from './SettingsContext';
-import OptionsForm from './OptionsForm';
-import CredentialsTable from './CredentialsTable';
 import { makeStyles } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
+import { SettingsContextProvider } from './SettingsContext';
+import OptionsForm from './OptionsForm';
+import CredentialsTable from './CredentialsTable';
 
 const useStyles = makeStyles((theme) => ({
   optionsFormContainer: {
@@ -67,7 +67,7 @@ const Options = () => {
                     No Jira or Splunk instances were found in the specified settings URL
                   </Typography>
                   <Typography variant="h6" component="h3">
-                    For more information, see the "External Settings Structure" documentation
+                    For more information, see the &quot;External Settings Structure&quot; documentation
                   </Typography>
                 </Paper>
               )}

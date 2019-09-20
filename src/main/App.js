@@ -18,12 +18,8 @@ const theme = createMuiTheme({
   },
 });
 
-function App() {
-  return <ThemeProvider theme={theme}>{getPageToRender()}</ThemeProvider>;
-}
-
 function getPageToRender() {
-  let page = queryString.parse(window.location.search).page;
+  const { page } = queryString.parse(window.location.search);
   switch (page) {
     case 'Options':
       return <Options />;
@@ -31,6 +27,10 @@ function getPageToRender() {
     default:
       return <Popup />;
   }
+}
+
+function App() {
+  return <ThemeProvider theme={theme}>{getPageToRender()}</ThemeProvider>;
 }
 
 export default App;

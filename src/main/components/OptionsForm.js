@@ -18,11 +18,12 @@ const OptionsForm = (props) => {
   const classes = useStyles();
 
   const onInputChange = (event) => {
-    const value = event.target.value;
+    const { value } = event.target;
 
     switch (event.target.name) {
       case 'settings-file': {
-        return setSettingsRepositoryUrl(value);
+        setSettingsRepositoryUrl(value);
+        break;
       }
       default: {
         break;

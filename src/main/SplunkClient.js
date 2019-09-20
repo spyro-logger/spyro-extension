@@ -21,12 +21,14 @@ const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, cr
       }),
     ])
     .then(
-      axios.spread(function(jobBySIDResponse, jobFirstEventResponse) {
-        return { jobBySIDResponse: jobBySIDResponse.data, jobFirstEventResponse: jobFirstEventResponse.data };
-      }),
+      axios.spread((jobBySIDResponse, jobFirstEventResponse) => ({
+        jobBySIDResponse: jobBySIDResponse.data,
+        jobFirstEventResponse: jobFirstEventResponse.data,
+      })),
     )
     .catch((error) => {
-      console.log('Error while retrieving splunk job details: ' + error);
+      // eslint-disable-next-line no-console
+      console.error(`Error while retrieving splunk job details: ${error}`);
     });
 };
 
