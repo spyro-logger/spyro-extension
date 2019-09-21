@@ -22,6 +22,9 @@ const ProductionStorageUtility = {
     }),
 };
 
-const Storage = process.env.NODE_ENV === 'development' ? DevelopmentStorageUtility : ProductionStorageUtility;
+const Storage =
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    ? DevelopmentStorageUtility
+    : ProductionStorageUtility;
 
 export default Storage;
