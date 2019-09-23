@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import Storage from '../utils/Storage';
 import ApplicationConstants from '../ApplicationConstants';
 import useInterval from '../hooks/useInterval';
+import Credentials from '../utils/Credentials';
 
 const { APPLICATION_NAME } = ApplicationConstants;
 const LOCAL_STORAGE_SETTINGS_KEY = `${APPLICATION_NAME}Settings`;
 const LOCAL_STORAGE_SETTINGS_REPOSITORY_URL_KEY = `${APPLICATION_NAME}SettingsRepositoryUrl`;
-const LOCAL_STORAGE_CREDENTIALS_KEY = `${APPLICATION_NAME}Credentials`;
 const MILLISECONDS_IN_ONE_MINUTE = 60000;
 const POLLING_INTERVAL = 15 * MILLISECONDS_IN_ONE_MINUTE;
 
@@ -34,7 +34,7 @@ const SettingsContextProvider = (props) => {
   const addCredentialEntry = (credentialToAdd) => {
     const updatedCredentials = [...credentials, credentialToAdd];
     setCredentials(updatedCredentials);
-    Storage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials));
+    Credentials.addEntry(credentialToAdd);
   };
 
   const initializeSettings = useCallback(async () => {
@@ -106,14 +106,13 @@ const WaitForInitialValuesGate = (settingsContextProviderProps) => {
     const fetchSettingsFromStorage = async () => {
       const settingsRepositoryUrlFromStorage = await Storage.getItem(LOCAL_STORAGE_SETTINGS_REPOSITORY_URL_KEY);
       const settingsFromStorage = await Storage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
-      const credentialsFromStorage = await Storage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+      const credentialsFromStorage = await Credentials.getAllEntries();
       try {
         const initialSettingsRepositoryUrl = settingsRepositoryUrlFromStorage || '';
         const initialSettings = JSON.parse(settingsFromStorage) || {};
-        const initialCredentials = JSON.parse(credentialsFromStorage) || [];
         setSettingsRepositoryUrl(initialSettingsRepositoryUrl);
         setSettings(initialSettings);
-        setCredentials(initialCredentials);
+        setCredentials(credentialsFromStorage);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
