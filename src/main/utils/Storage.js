@@ -9,6 +9,8 @@ const DevelopmentStorageUtility = {
       const item = window.localStorage.getItem(key);
       resolve(item);
     }),
+  setSecureItem: (key, value) => DevelopmentStorageUtility.setItem(key, value),
+  getSecureItem: (key) => DevelopmentStorageUtility.getItem(key),
 };
 
 const ProductionStorageUtility = {
@@ -19,6 +21,14 @@ const ProductionStorageUtility = {
   getItem: (key) =>
     new Promise((resolve) => {
       window.chrome.storage.sync.get(key, (entries) => resolve(entries[key]));
+    }),
+  setSecureItem: (key, value) =>
+    new Promise((resolve) => {
+      window.chrome.storage.local.set({ [key]: value }, resolve);
+    }),
+  getSecureItem: (key) =>
+    new Promise((resolve) => {
+      window.chrome.storage.local.get(key, (entries) => resolve(entries[key]));
     }),
 };
 

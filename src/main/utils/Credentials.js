@@ -24,11 +24,11 @@ const Credentials = {
    *    A promise that resolves when the credential is saved to storage.
    */
   addEntry: async (credentialToAdd) => {
-    const credentialsFromStorage = await Storage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+    const credentialsFromStorage = await Storage.getSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY);
     const parsedCredentials = credentialsFromStorage ? JSON.parse(credentialsFromStorage) : [];
 
     const updatedCredentials = [...parsedCredentials, credentialToAdd];
-    return Storage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials));
+    return Storage.setSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials));
   },
 
   /**
@@ -39,7 +39,7 @@ const Credentials = {
    *    empty list.
    */
   getAllEntries: async () => {
-    const credentialsFromStorage = await Storage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+    const credentialsFromStorage = await Storage.getSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY);
     return credentialsFromStorage ? JSON.parse(credentialsFromStorage) : [];
   },
 
