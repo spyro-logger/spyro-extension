@@ -18,8 +18,8 @@ const TemplateSelector = (props) => {
     <>
       <Box>
         <FormControl fullWidth>
-          <InputLabel htmlFor="age-simple">Jira Template</InputLabel>
-          <Select value={indexOfSelectedTemplate} onChange={onSelectChange}>
+          <InputLabel htmlFor="jira-template-select">Jira Template</InputLabel>
+          <Select value={indexOfSelectedTemplate} onChange={onSelectChange} id="jira-template-select">
             {issueTemplates.map((issueTemplate, index) => (
               // eslint-disable-next-line react/no-array-index-key
               <MenuItem key={index} value={index}>
