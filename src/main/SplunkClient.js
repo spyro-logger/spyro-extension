@@ -1,30 +1,57 @@
 import axios from 'axios';
+import moment from 'moment';
+
+const getNodeValueByNodeName = (parentNode, nodeName) => {
+  const nodes = parentNode.getElementsByTagNameNS('*', 'key');
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].getAttribute('name') === nodeName) {
+      return nodes[i].childNodes[0].nodeValue;
+    }
+  }
+  return undefined;
+};
+
+const getFormattedDateTime = (xmlDoc, nodeName) => {
+  const startDateTime = getNodeValueByNodeName(xmlDoc, nodeName);
+  return moment(startDateTime).format('MM/DD/YY h:mm:ss A');
+};
+
+const populateSearchRange = (xmlDoc) => {
+  return `${getFormattedDateTime(xmlDoc, 'earliestTime')} to ${getFormattedDateTime(xmlDoc, 'latestTime')}`;
+};
+
+const populateRequiredJobdetails = (jobBySIDResponse, jobFirstEventResponse) => {
+  const jobDetails = {};
+
+  /* eslint-disable no-underscore-dangle */
+  jobDetails.stackTrace = jobFirstEventResponse.data.results[0]._raw;
+  const xmlDoc = new DOMParser().parseFromString(jobBySIDResponse.data, 'text/xml');
+  jobDetails.occurences = getNodeValueByNodeName(xmlDoc, 'eventCount');
+  jobDetails.searchRange = populateSearchRange(xmlDoc);
+  jobDetails.searchString = getNodeValueByNodeName(xmlDoc, 'custom.search');
+
+  return jobDetails;
+};
 
 const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, credential }) => {
-  const retrieveJobBySIDUrl = `${splunkAPIURL}/nobody/${splunkApp}/search/jobs?sid=${searchId}`;
-  const retrieveJobFirstEventUrl = `${splunkAPIURL}/nobody/${splunkApp}/search/jobs/${searchId}/events?count=1&f=_raw`;
-  const headers = {
-    Accept: 'application/json',
-  };
+  const retrieveJobBySIDUrl = `${splunkAPIURL}/nobody/${splunkApp}/search/jobs/${searchId}`;
+  const retrieveJobFirstEventUrl = `${splunkAPIURL}/nobody/${splunkApp}/search/jobs/${searchId}/events?count=1&f=_raw&output_mode=json`;
 
   const auth = { username: credential.username, password: credential.password };
 
   return axios
     .all([
       axios.get(retrieveJobBySIDUrl, {
-        headers,
         auth,
       }),
       axios.get(retrieveJobFirstEventUrl, {
-        headers,
         auth,
       }),
     ])
     .then(
-      axios.spread((jobBySIDResponse, jobFirstEventResponse) => ({
-        jobBySIDResponse: jobBySIDResponse.data,
-        jobFirstEventResponse: jobFirstEventResponse.data,
-      })),
+      axios.spread((jobBySIDResponse, jobFirstEventResponse) => {
+        return populateRequiredJobdetails(jobBySIDResponse, jobFirstEventResponse);
+      }),
     )
     .catch((error) => {
       // eslint-disable-next-line no-console

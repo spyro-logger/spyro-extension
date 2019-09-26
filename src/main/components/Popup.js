@@ -1,5 +1,6 @@
+/* global chrome */
 import React, { useState } from 'react';
-import { Box, makeStyles } from '@material-ui/core';
+import { Box, Button, makeStyles } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import Typography from '@material-ui/core/Typography';
@@ -7,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Header from './Header';
 import { SettingsContextProvider } from './SettingsContext';
 import TemplateSelector from './TemplateSelector';
+import SplunkJobLoader from '../utils/SplunkJobLoader';
 
 const useStyles = makeStyles((theme) => ({
   bannerContainer: {
@@ -29,6 +31,30 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(2),
   },
 }));
+
+async function loadJobDetailsFromURL() {
+  const queryInfo = {
+    active: true,
+    currentWindow: true,
+  };
+
+  chrome.tabs.query(queryInfo, function(tabs) {
+    const { url } = tabs[0];
+
+    // TODO: Place holders until we read splunkAPIURL, splunkApp and auth
+    const splunkAPIURL = '';
+    const splunkApp = '';
+    const credential = {
+      username: 'xxx',
+      password: 'xxx',
+    };
+
+    SplunkJobLoader.loadJobDetailsFromURL(url, splunkAPIURL, splunkApp, credential).then((response) => {
+      // eslint-disable-next-line no-console
+      console.log(`REPLY: ${JSON.stringify(response)}`);
+    });
+  });
+}
 
 function Popup() {
   const [indexOfSelectedTemplate, setIndexOfSelectedTemplate] = useState(0);
@@ -74,6 +100,9 @@ function Popup() {
             );
           }}
         </SettingsContextProvider>
+        <Button variant="contained" color="primary" onClick={loadJobDetailsFromURL}>
+          Populate From Splunk
+        </Button>
       </Box>
     </Box>
   );
