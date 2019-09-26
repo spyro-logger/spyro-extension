@@ -1,32 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
 import Box from '@material-ui/core/Box';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
 const TemplateSelector = (props) => {
   const { issueTemplates, indexOfSelectedTemplate, onSelectionChange } = props;
 
-  const onSelectChange = (event) => {
-    const { value } = event.target;
-    onSelectionChange(value);
+  const onSelectChange = (event, newValue) => {
+    onSelectionChange(newValue);
   };
 
   return (
     <>
       <Box>
         <FormControl fullWidth>
-          <InputLabel htmlFor="jira-template-select">Jira Template</InputLabel>
-          <Select value={indexOfSelectedTemplate} onChange={onSelectChange} id="jira-template-select">
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={indexOfSelectedTemplate}
+            onChange={onSelectChange}
+            id="jira-template-select"
+          >
             {issueTemplates.map((issueTemplate, index) => (
               // eslint-disable-next-line react/no-array-index-key
-              <MenuItem key={index} value={index}>
+              <ToggleButton key={index} value={index}>
                 {issueTemplate.name}
-              </MenuItem>
+              </ToggleButton>
             ))}
-          </Select>
+          </ToggleButtonGroup>
         </FormControl>
       </Box>
     </>

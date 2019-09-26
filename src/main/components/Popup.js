@@ -24,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
     width: 'auto',
     marginBottom: theme.spacing(2),
   },
+  mainContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
 }));
 
 function Popup() {
@@ -57,7 +61,7 @@ function Popup() {
             }
 
             return (
-              <>
+              <div className={classes.mainContainer}>
                 <TemplateSelector
                   issueTemplates={settings.issueTemplates}
                   indexOfSelectedTemplate={indexOfSelectedTemplate}
@@ -66,7 +70,7 @@ function Popup() {
                 {settings && settings.issueTemplates && settings.issueTemplates.length > 0 && (
                   <pre>{JSON.stringify(settings.issueTemplates[indexOfSelectedTemplate], null, 2)}</pre>
                 )}
-              </>
+              </div>
             );
           }}
         </SettingsContextProvider>
