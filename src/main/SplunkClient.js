@@ -3,12 +3,9 @@ import moment from 'moment';
 
 const getNodeValueByNodeName = (parentNode, nodeName) => {
   const nodes = parentNode.getElementsByTagNameNS('*', 'key');
-  for (let i = 0; i < nodes.length; i++) {
-    if (nodes[i].getAttribute('name') === nodeName) {
-      return nodes[i].childNodes[0].nodeValue;
-    }
-  }
-  return undefined;
+
+  const selectedNode = nodes.find((node) => node.getAttribute('name') === nodeName);
+  return selectedNode ? selectedNode.childNodes[0].nodeValue : undefined;
 };
 
 const getFormattedDateTime = (xmlDoc, nodeName) => {
