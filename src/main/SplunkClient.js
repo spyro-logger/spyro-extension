@@ -23,7 +23,7 @@ const populateSearchRange = (xmlDoc) => {
 const populateRequiredJobdetails = (jobBySIDResponse, jobFirstEventResponse) => {
   const jobDetails = {};
 
-  /* eslint-disable no-underscore-dangle */
+  // eslint-disable-next-line no-underscore-dangle
   jobDetails.stackTrace = jobFirstEventResponse.data.results[0]._raw;
   const xmlDoc = new DOMParser().parseFromString(jobBySIDResponse.data, 'text/xml');
   jobDetails.occurences = getNodeValueByNodeName(xmlDoc, 'eventCount');
