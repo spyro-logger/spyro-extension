@@ -11,6 +11,11 @@
   "options_page": "index.html?page=Options",
   "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'",
   "permissions": [
-    "storage"
+    "tabs",
+    "activeTab",
+    "debugger",
+    "storage",
+    "http://*/*", 
+    "https://*/*"
   ]
 }
