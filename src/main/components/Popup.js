@@ -56,7 +56,7 @@ const sampleValues = {
   splunk_search_range: 'Date 1 to Date 2',
   splunk_search_string: 'INDEX=SPLUNK',
   splunk_search_url_without_sid: 'http://splunk.com',
-  settings_current_user_id: 'user1',
+  jira_instance_credentials_username: 'user1',
 };
 
 function Popup() {
