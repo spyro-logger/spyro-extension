@@ -10,7 +10,7 @@ async function getCurrentSplunkUrlForProduction() {
     };
 
     // eslint-disable-next-line no-undef
-    chrome.tabs.query(queryInfo, function(tabs) {
+    chrome.tabs.query(queryInfo, (tabs) => {
       const { url } = tabs[0];
       resolve(url);
     });

@@ -49,6 +49,16 @@ function getSplunkRestUrl(splunkInstances, key) {
   return undefined;
 }
 
+// TODO: Pull injected values from splunkSearchDetails and remove sampleValues
+const sampleValues = {
+  splunk_event_count: '52',
+  splunk_event_content: 'Some error occurred',
+  splunk_search_range: 'Date 1 to Date 2',
+  splunk_search_string: 'INDEX=SPLUNK',
+  splunk_search_url_without_sid: 'http://splunk.com',
+  settings_current_user_id: 'user1',
+};
+
 function Popup() {
   const [indexOfSelectedTemplate, setIndexOfSelectedTemplate] = useState(0);
   const [splunkSearchDetails, setSplunkSearchDetails] = useState(null);
@@ -69,9 +79,8 @@ function Popup() {
         const splunkApp = '';
 
         return SplunkJobLoader.loadJobDetailsFromURL(url, splunkAPIURL, splunkApp, credential)
-          .then((response) => {
-            const searchDetails = { foo: 'bar', response }; // TODO: Replace search details with response when response works
-            setSplunkSearchDetails(searchDetails);
+          .then(() => {
+            setSplunkSearchDetails(sampleValues); // TODO: Replace with response when response works
           })
           .catch(() => {
             setError('Unable to retrieve Splunk details');
