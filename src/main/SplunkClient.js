@@ -3,7 +3,7 @@ import moment from 'moment';
 
 const getNodeValueByNodeName = (parentNode, nodeName) => {
   const nodes = parentNode.getElementsByTagNameNS('*', 'key');
-
+  // Looping over HTMLCollection, which doesn't have typical array functions
   for (let i = 0; i < nodes.length; i += 1) {
     if (nodes[i].getAttribute('name') === nodeName) {
       return nodes[i].childNodes[0].nodeValue;
