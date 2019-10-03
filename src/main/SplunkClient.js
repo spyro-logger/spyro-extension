@@ -17,7 +17,7 @@ const populateSearchRange = (xmlDoc) => {
   return `${getFormattedDateTime(xmlDoc, 'earliestTime')} to ${getFormattedDateTime(xmlDoc, 'latestTime')}`;
 };
 
-const populateRequiredJobdetails = (jobBySIDResponse, jobFirstEventResponse) => {
+const populateRequiredJobDetails = (jobBySIDResponse, jobFirstEventResponse) => {
   const jobDetails = {};
 
   // eslint-disable-next-line no-underscore-dangle
@@ -36,24 +36,28 @@ const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, cr
 
   const auth = { username: credential.username, password: credential.password };
 
-  return axios
-    .all([
-      axios.get(retrieveJobBySIDUrl, {
-        auth,
-      }),
-      axios.get(retrieveJobFirstEventUrl, {
-        auth,
-      }),
-    ])
-    .then(
-      axios.spread((jobBySIDResponse, jobFirstEventResponse) => {
-        return populateRequiredJobdetails(jobBySIDResponse, jobFirstEventResponse);
-      }),
-    )
-    .catch((error) => {
-      // eslint-disable-next-line no-console
-      console.error(`Error while retrieving splunk job details: ${error}`);
-    });
+  return new Promise((resolve, reject) => {
+    axios
+      .all([
+        axios.get(retrieveJobBySIDUrl, {
+          auth,
+        }),
+        axios.get(retrieveJobFirstEventUrl, {
+          auth,
+        }),
+      ])
+      .then(
+        axios.spread((jobBySIDResponse, jobFirstEventResponse) => {
+          return populateRequiredJobDetails(jobBySIDResponse, jobFirstEventResponse);
+        }),
+      )
+      .catch((error) => {
+        const errorMessage = `Error while retrieving splunk job details: ${error}`;
+        // eslint-disable-next-line no-console
+        console.error(errorMessage);
+        reject(new Error(errorMessage));
+      });
+  });
 };
 
 export default { splunkJobDetailsRetriever };
