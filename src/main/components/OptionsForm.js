@@ -31,7 +31,8 @@ const OptionsForm = (props) => {
     }
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
     const formValues = {
       settingsRepositoryUrl: settingsUrl,
     };
@@ -39,7 +40,7 @@ const OptionsForm = (props) => {
   };
 
   return (
-    <div>
+    <form onSubmit={handleFormSubmit}>
       <Grid container spacing={3}>
         <Grid item xs={10} sm={11}>
           <TextField
@@ -54,19 +55,12 @@ const OptionsForm = (props) => {
           />
         </Grid>
         <Grid item xs={2} sm={1}>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            className={classes.button}
-            onClick={handleFormSubmit}
-            fullWidth
-          >
+          <Button variant="contained" color="primary" type="submit" className={classes.button} fullWidth>
             Save
           </Button>
         </Grid>
       </Grid>
-    </div>
+    </form>
   );
 };
 

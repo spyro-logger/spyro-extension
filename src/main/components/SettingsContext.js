@@ -32,9 +32,11 @@ const SettingsContextProvider = (props) => {
   };
 
   const addCredentialEntry = (credentialToAdd) => {
-    const updatedCredentials = [...credentials, credentialToAdd];
-    setCredentials(updatedCredentials);
-    Credentials.addEntry(credentialToAdd);
+    Credentials.addEntry(credentialToAdd).then(setCredentials);
+  };
+
+  const removeCredentialEntry = (indexOfCredentialToRemove) => {
+    Credentials.removeEntry(indexOfCredentialToRemove).then(setCredentials);
   };
 
   const initializeSettings = useCallback(async () => {
@@ -72,6 +74,7 @@ const SettingsContextProvider = (props) => {
     actions: {
       setSettingsRepositoryUrl: saveSettingsRepositoryUrl,
       addCredentialEntry,
+      removeCredentialEntry,
     },
     statuses: {
       settingsFetchErrorOccurred,

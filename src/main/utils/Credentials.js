@@ -28,7 +28,19 @@ const Credentials = {
     const parsedCredentials = credentialsFromStorage ? JSON.parse(credentialsFromStorage) : [];
 
     const updatedCredentials = [...parsedCredentials, credentialToAdd];
-    return Storage.setSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials));
+    return Storage.setSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials)).then(
+      () => updatedCredentials,
+    );
+  },
+
+  removeEntry: async (indexOfEntryToRemove) => {
+    const credentialsFromStorage = await Storage.getSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+    const parsedCredentials = credentialsFromStorage ? JSON.parse(credentialsFromStorage) : [];
+
+    const updatedCredentials = parsedCredentials.filter((credential, index) => index !== indexOfEntryToRemove);
+    return Storage.setSecureItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(updatedCredentials)).then(
+      () => updatedCredentials,
+    );
   },
 
   /**
