@@ -53,7 +53,8 @@ const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, cr
       ])
       .then(
         axios.spread((jobBySIDResponse, jobFirstEventResponse) => {
-          return populateRequiredJobDetails(jobBySIDResponse, jobFirstEventResponse);
+          const populatedJobDetails = populateRequiredJobDetails(jobBySIDResponse, jobFirstEventResponse);
+          resolve(populatedJobDetails);
         }),
       )
       .catch((error) => {

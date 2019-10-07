@@ -1,4 +1,5 @@
-const compileString = require('es6-template-strings');
+const compileString = (templateString, templateVariables) =>
+  templateString.replace(/\${(.*?)}/g, (_, g) => templateVariables[g]);
 
 function validateNotNullOrUndefined(element, elementName = 'Element') {
   if (typeof element === 'undefined' || element === null) {
