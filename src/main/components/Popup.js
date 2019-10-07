@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Button, makeStyles } from '@material-ui/core';
-import Paper from '@material-ui/core/Paper';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import Typography from '@material-ui/core/Typography';
 
+import { defaultBackgroundColor } from '../styleVariables';
 import Header from './Header';
 import { SettingsContextProvider } from './SettingsContext';
 import TemplateSelector from './TemplateSelector';
@@ -12,22 +11,16 @@ import SplunkJobLoader from '../utils/SplunkJobLoader';
 import getCurrentSplunkUrl from '../utils/getCurrentSplunkUrl';
 import Credentials from '../utils/Credentials';
 import JiraSubmitter from './JiraSubmitter';
+import InfoPaper from './InfoPaper';
 
 const useStyles = makeStyles((theme) => ({
+  page: {
+    width: 700,
+    height: 600,
+    backgroundColor: defaultBackgroundColor,
+  },
   bannerContainer: {
     marginBottom: theme.spacing(3),
-  },
-  notificationContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing(2),
-  },
-  notificationContainerIcon: {
-    height: 50,
-    width: 'auto',
-    marginBottom: theme.spacing(2),
   },
   mainContainer: {
     paddingLeft: theme.spacing(2),
@@ -92,8 +85,7 @@ function Popup() {
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" m={0} p={0} bgcolor="background.paper">
-      {/* There's no good reason for the 575 except that it was causing a scroll bar to use 600 px */}
-      <Box width="800px" height="575px">
+      <Box className={classes.page}>
         <Box className={classes.bannerContainer}>
           <Header />
         </Box>
@@ -101,15 +93,11 @@ function Popup() {
           {({ settings }) => {
             if (!settings || !settings.issueTemplates) {
               return (
-                <Paper className={classes.notificationContainer}>
-                  <DescriptionOutlinedIcon className={classes.notificationContainerIcon} />
-                  <Typography variant="h5" component="h2">
-                    Navigate to the Options of this extension and provide a settings URL.
-                  </Typography>
-                  <Typography variant="h6" component="h3">
-                    For more information, see the &quot;External Settings&quot; documentation
-                  </Typography>
-                </Paper>
+                <InfoPaper
+                  Icon={DescriptionOutlinedIcon}
+                  header="Navigate to the Options of this extension and provide a settings URL."
+                  subheader='For more information, see the "External Settings" documentation'
+                />
               );
             }
 
@@ -129,17 +117,11 @@ function Popup() {
                   Populate From Splunk
                 </Button>
                 {error && (
-                  <>
-                    <Paper className={classes.notificationContainer}>
-                      <ErrorOutlineIcon className={classes.notificationContainerIcon} />
-                      <Typography variant="h5" component="h2">
-                        Unable to retrieve Splunk details.
-                      </Typography>
-                      <Typography variant="h6" component="h3">
-                        Double check settings and try again.
-                      </Typography>
-                    </Paper>
-                  </>
+                  <InfoPaper
+                    Icon={ErrorOutlineIcon}
+                    header="Unable to retrieve Splunk details."
+                    subheader="Double check settings and try again."
+                  />
                 )}
                 {!error && splunkSearchDetails && (
                   <JiraSubmitter
