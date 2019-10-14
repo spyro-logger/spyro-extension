@@ -50,9 +50,8 @@ function Popup() {
 
   async function loadJobDetailsFromURL(selectedTemplate, applicationSettings) {
     getCurrentSplunkUrl().then(async (url) => {
-      const jiraInstance = selectedTemplate['jira-instance'];
-      const splunkInstance = selectedTemplate['splunk-instance'];
-      Credentials.getEntryByKey(jiraInstance).then((credential) => {
+      const { splunkInstance } = selectedTemplate;
+      Credentials.getEntryByKey(splunkInstance).then((credential) => {
         const splunkAPIURL = getSplunkRestUrl(applicationSettings.shared.splunk.instances, splunkInstance);
 
         if (!splunkAPIURL) {
@@ -82,6 +81,12 @@ function Popup() {
 
   const handleTemplateSelection = (indexOfNewlySelectedTemplate) =>
     setIndexOfSelectedTemplate(indexOfNewlySelectedTemplate);
+
+  const onJIRAIssueCreation = (response) => {
+    // eslint-disable-next-line no-console
+    console.log(`Inside POP-UP onJIRAIssueCreation: ${JSON.stringify(response)}`);
+    // Add code to associate jira to splunk event id here
+  };
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" m={0} p={0} bgcolor="background.paper">
@@ -126,7 +131,9 @@ function Popup() {
                 {!error && splunkSearchDetails && (
                   <JiraSubmitter
                     selectedTemplate={settings.issueTemplates[indexOfSelectedTemplate]}
+                    jiraInstances={settings.shared.jira.instances}
                     splunkSearchDetails={splunkSearchDetails}
+                    onJIRAIssueCreation={onJIRAIssueCreation}
                   />
                 )}
               </div>

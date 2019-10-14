@@ -10,7 +10,11 @@ import Button from '@material-ui/core/Button';
 import FormLabel from '@material-ui/core/FormLabel';
 import Typography from '@material-ui/core/Typography';
 
-import injectValuesIntoTemplateSummary from '../utils/injectValuesIntoTemplateSummary';
+import injectValuesIntoTemplateDescription from '../utils/injectValuesIntoTemplateDescription';
+import Credentials from '../utils/Credentials';
+import JiraClient from '../clients/JiraClient';
+
+const TITLE_LENGTH_EXCEEDED = 'Title cannot exceed 254 characters';
 
 const useStyles = makeStyles((theme) => ({
   titleField: {
@@ -30,34 +34,67 @@ const useStyles = makeStyles((theme) => ({
 
 const JiraSubmitter = (props) => {
   const [title, setTitle] = useState('');
+  const [titleError, setTitleError] = useState('');
   const classes = useStyles();
+  const { fieldValues, jiraInstance } = props.selectedTemplate;
 
-  const handleTitleChange = (event) => setTitle(event.target.value);
+  const handleTitleChange = (event) => {
+    const updatedTitleError = event.target.value.length > 254 ? TITLE_LENGTH_EXCEEDED : '';
+    setTitleError(updatedTitleError);
+    setTitle(event.target.value);
+  };
 
-  const summary = injectValuesIntoTemplateSummary(
-    props.selectedTemplate.fieldValues.summary,
-    props.splunkSearchDetails,
-  );
+  function getJiraHost(key) {
+    const selectedInstance = props.jiraInstances.find((instance) => instance.key === key);
+
+    if (selectedInstance) {
+      const currentHost =
+        process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+          ? selectedInstance.devHost
+          : selectedInstance.host;
+
+      return currentHost;
+    }
+
+    return undefined;
+  }
+
+  const populatedDescription = injectValuesIntoTemplateDescription(fieldValues.description, props.splunkSearchDetails);
 
   const onSubmit = (event) => {
     event.preventDefault();
 
-    const jiraSubmission = {
-      title,
-      summary,
-    };
+    const populatedFieldValues = { ...fieldValues, description: populatedDescription, summary: title };
 
-    // eslint-disable-next-line no-console
-    console.log(jiraSubmission);
+    Credentials.getEntryByKey(jiraInstance).then((jiraCredential) => {
+      const jiraHost = getJiraHost(jiraInstance);
+
+      if (!jiraHost) {
+        // eslint-disable-next-line no-console
+        console.log('Jira host is not specified');
+      }
+
+      JiraClient.createIssue(jiraHost, jiraCredential, populatedFieldValues)
+        .then((response) => {
+          props.onJIRAIssueCreation(response);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        });
+    });
   };
 
   return (
     <form onSubmit={onSubmit}>
       <TextField
+        error={titleError.length !== 0}
         id="standard-name"
         label="Jira Title"
         margin="normal"
+        required
         fullWidth
+        helperText={titleError || ''}
         className={classes.titleField}
         value={title}
         onChange={handleTitleChange}
@@ -68,9 +105,9 @@ const JiraSubmitter = (props) => {
         </ExpansionPanelSummary>
         <ExpansionPanelDetails className={classes.panelContent}>
           <FormLabel component="legend" className={classes.label}>
-            Summary
+            Issue Description
           </FormLabel>
-          <pre>{summary}</pre>
+          <pre>{populatedDescription}</pre>
         </ExpansionPanelDetails>
       </ExpansionPanel>
       <Button type="submit" variant="contained" color="primary">
@@ -82,13 +119,19 @@ const JiraSubmitter = (props) => {
 
 JiraSubmitter.propTypes = {
   selectedTemplate: PropTypes.shape({
+    jiraInstance: PropTypes.string.isRequired,
     fieldValues: PropTypes.shape({
-      summary: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
-
   // eslint-disable-next-line react/forbid-prop-types
   splunkSearchDetails: PropTypes.object.isRequired,
+  onJIRAIssueCreation: PropTypes.func.isRequired,
+  jiraInstances: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
 };
 
 export default JiraSubmitter;

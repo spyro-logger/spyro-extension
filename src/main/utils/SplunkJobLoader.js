@@ -1,5 +1,5 @@
 import queryString from 'query-string';
-import SplunkClient from '../SplunkClient';
+import SplunkClient from '../clients/SplunkClient';
 
 async function loadJobDetails(searchId, splunkAPIURL, splunkApp, credential) {
   const splunkJobDetailsRetriever = SplunkClient.splunkJobDetailsRetriever();

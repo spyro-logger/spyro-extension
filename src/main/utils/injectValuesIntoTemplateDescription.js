@@ -21,10 +21,10 @@ function validateRequiredValues(configurationValues) {
   requiredProperties.forEach((property) => validateNotNullOrUndefined(configurationValues[property], property));
 }
 
-function injectValuesIntoTemplateSummary(template, configurationValues) {
+function injectValuesIntoTemplateDescription(template, configurationValues) {
   validateRequiredValues(configurationValues);
 
   return compileString(template, configurationValues);
 }
 
-export default injectValuesIntoTemplateSummary;
+export default injectValuesIntoTemplateDescription;
