@@ -50,15 +50,13 @@ function Popup() {
 
   async function loadJobDetailsFromURL(selectedTemplate, applicationSettings) {
     getCurrentSplunkUrl().then(async (url) => {
-      const { splunkInstance } = selectedTemplate;
+      const { splunkInstance, splunkApp } = selectedTemplate;
       Credentials.getEntryByKey(splunkInstance).then((credential) => {
         const splunkAPIURL = getSplunkRestUrl(applicationSettings.shared.splunk.instances, splunkInstance);
 
         if (!splunkAPIURL) {
           return Promise.reject(new Error('No Splunk API URL specified'));
         }
-
-        const splunkApp = '';
 
         return SplunkJobLoader.loadJobDetailsFromURL(url, splunkAPIURL, splunkApp, credential)
           .then((response) => {
