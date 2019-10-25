@@ -32,7 +32,7 @@ const createIssue = async (jiraHost, jiraCredential, fieldValues) => {
     const errorMessage = `Error while creating JIRA issue: ${error}`;
     // eslint-disable-next-line no-console
     console.error(errorMessage);
-    throw new Error(errorMessage);
+    throw new Error('Failed to create Jira!');
   }
 };
 

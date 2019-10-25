@@ -5,14 +5,13 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import FormLabel from '@material-ui/core/FormLabel';
 import Typography from '@material-ui/core/Typography';
 
 import injectValuesIntoTemplateDescription from '../utils/injectValuesIntoTemplateDescription';
-import Credentials from '../utils/Credentials';
-import JiraClient from '../clients/JiraClient';
 
 const TITLE_LENGTH_EXCEEDED = 'Title cannot exceed 254 characters';
 
@@ -30,13 +29,16 @@ const useStyles = makeStyles((theme) => ({
   label: {
     marginTop: theme.spacing(1),
   },
+  circularProgress: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
 const JiraSubmitter = (props) => {
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState('');
   const classes = useStyles();
-  const { fieldValues, jiraInstance } = props.selectedTemplate;
+  const { fieldValues } = props.selectedTemplate;
 
   const handleTitleChange = (event) => {
     const updatedTitleError = event.target.value.length > 254 ? TITLE_LENGTH_EXCEEDED : '';
@@ -44,45 +46,13 @@ const JiraSubmitter = (props) => {
     setTitle(event.target.value);
   };
 
-  function getJiraHost(key) {
-    const selectedInstance = props.jiraInstances.find((instance) => instance.key === key);
-
-    if (selectedInstance) {
-      const currentHost =
-        process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-          ? selectedInstance.devHost
-          : selectedInstance.host;
-
-      return currentHost;
-    }
-
-    return undefined;
-  }
-
   const populatedDescription = injectValuesIntoTemplateDescription(fieldValues.description, props.splunkSearchDetails);
 
   const onSubmit = (event) => {
     event.preventDefault();
 
     const populatedFieldValues = { ...fieldValues, description: populatedDescription, summary: title };
-
-    Credentials.getEntryByKey(jiraInstance).then((jiraCredential) => {
-      const jiraHost = getJiraHost(jiraInstance);
-
-      if (!jiraHost) {
-        // eslint-disable-next-line no-console
-        console.log('Jira host is not specified');
-      }
-
-      JiraClient.createIssue(jiraHost, jiraCredential, populatedFieldValues)
-        .then((response) => {
-          props.onJIRAIssueCreation(response);
-        })
-        .catch((error) => {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        });
-    });
+    props.onSubmit(populatedFieldValues);
   };
 
   return (
@@ -110,8 +80,20 @@ const JiraSubmitter = (props) => {
           <pre>{populatedDescription}</pre>
         </ExpansionPanelDetails>
       </ExpansionPanel>
-      <Button type="submit" variant="contained" color="primary">
-        Submit
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={titleError.length !== 0 || props.submissionInProgress}
+      >
+        {props.submissionInProgress ? (
+          <div>
+            Submitting
+            <CircularProgress className={classes.circularProgress} color="secondary" size={22} />
+          </div>
+        ) : (
+          'Submit'
+        )}
       </Button>
     </form>
   );
@@ -119,19 +101,14 @@ const JiraSubmitter = (props) => {
 
 JiraSubmitter.propTypes = {
   selectedTemplate: PropTypes.shape({
-    jiraInstance: PropTypes.string.isRequired,
     fieldValues: PropTypes.shape({
       description: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   splunkSearchDetails: PropTypes.object.isRequired,
-  onJIRAIssueCreation: PropTypes.func.isRequired,
-  jiraInstances: PropTypes.arrayOf(
-    PropTypes.shape({
-      key: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  submissionInProgress: PropTypes.bool.isRequired,
 };
 
 export default JiraSubmitter;

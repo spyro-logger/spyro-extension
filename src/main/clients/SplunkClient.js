@@ -66,4 +66,45 @@ const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, cr
   });
 };
 
-export default { splunkJobDetailsRetriever };
+const createEventType = async (credential, splunkAPIURL, splunkApp, jiraIdentifier, searchString) => {
+  try {
+    const createEventTypeUrl = `${splunkAPIURL}/${credential.username}/${splunkApp}/saved/eventtypes`;
+    const basicAuth = `Basic ${btoa(`${credential.username}:${credential.password}`)}`;
+
+    const formData = `name=${encodeURIComponent(jiraIdentifier)}&priority=5&disabled=0&description=${encodeURIComponent(
+      jiraIdentifier,
+    )}&search=${searchString}`;
+
+    const headers = { 'Content-type': 'application/x-www-form-urlencoded', Authorization: basicAuth };
+
+    return await axios.post(createEventTypeUrl, formData, { headers });
+  } catch (error) {
+    const errorMessage = `Error while creating event type: ${error}`;
+    // eslint-disable-next-line no-console
+    console.error(errorMessage);
+    throw new Error('Failed to create event type');
+  }
+};
+
+const updateEventTypePermission = async (credential, splunkAPIURL, splunkApp, jiraIdentifier) => {
+  try {
+    const updateEventTypeUrl = `${splunkAPIURL}/${credential.username}/${splunkApp}/saved/eventtypes/${jiraIdentifier}/acl`;
+
+    const basicAuth = `Basic ${btoa(`${credential.username}:${credential.password}`)}`;
+
+    const formData = `perms.read=${encodeURIComponent('*')}&perms.write=${encodeURIComponent(
+      '*',
+    )}&sharing=app&owner=${encodeURIComponent(credential.username)}`;
+
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: basicAuth };
+
+    return await axios.post(updateEventTypeUrl, formData, { headers });
+  } catch (error) {
+    const errorMessage = `Failed to update Event Type permissions: ${error}`;
+    // eslint-disable-next-line no-console
+    console.error(errorMessage);
+    throw new Error('updating event type permission failed!');
+  }
+};
+
+export default { splunkJobDetailsRetriever, createEventType, updateEventTypePermission };
