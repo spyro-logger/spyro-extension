@@ -76,6 +76,11 @@ const showEnqueueSnackbar = (message, variant, enqueueSnackbar) =>
     },
   );
 
+function openCreatedIssue(jiraHost, jiraIdentifier) {
+  const jiraURL = `https://${jiraHost}/browse/${jiraIdentifier}`;
+  window.chrome.tabs.create({ url: jiraURL, active: false, selected: false });
+}
+
 async function createAndUpdateEventType(
   selectedTemplate,
   applicationSettings,
@@ -168,12 +173,14 @@ function Popup() {
     try {
       const createIssueResponse = await JiraClient.createIssue(jiraHost, jiraCredential, populatedFieldValues);
       showEnqueueSnackbar('JIRA created successfully!', 'success', enqueueSnackbar);
+      const jiraIdentifier = createIssueResponse.key;
+      openCreatedIssue(jiraHost, jiraIdentifier);
 
       await createAndUpdateEventType(
         selectedTemplate,
         applicationSettings,
         searchString,
-        createIssueResponse.key,
+        jiraIdentifier,
         enqueueSnackbar,
       );
       showEnqueueSnackbar('Event permission updated!', 'success', enqueueSnackbar);
