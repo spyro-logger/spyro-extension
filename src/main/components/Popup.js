@@ -135,6 +135,10 @@ function Popup() {
 
         return splunkJobDetailsRetriever({ splunkAPIURL, splunkApp, searchId: sid, credential })
           .then((response) => {
+            const jobSummaryFields = [...Object.entries(response.fields)]
+              .map(([key, value]) => [`splunk:fields:${key}`, value])
+              .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
             const details = {
               splunk_event_count: response.occurences,
               splunk_event_content: response.stackTrace,
@@ -142,6 +146,7 @@ function Popup() {
               splunk_search_string: response.searchString,
               splunk_search_url_without_sid: 'http://splunk.com',
               jira_instance_credentials_username: 'user1',
+              ...jobSummaryFields,
             };
             setSplunkSearchDetails(details);
             setSplunkRetrievalInProgress(false);
