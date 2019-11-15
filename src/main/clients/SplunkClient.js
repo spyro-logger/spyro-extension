@@ -68,7 +68,6 @@ const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, cr
         }),
         axios.get(retrieveJobSummaryUrl, {
           auth,
-          'Content-Type': '',
         }),
       ])
       .then(
