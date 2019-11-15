@@ -16,7 +16,6 @@ function validateRequiredValues(configurationValues) {
     'splunk_search_range',
     'splunk_search_string',
     'splunk_search_url_without_sid',
-    'jira_instance_credentials_username',
   ];
   requiredProperties.forEach((property) => validateNotNullOrUndefined(configurationValues[property], property));
 }
