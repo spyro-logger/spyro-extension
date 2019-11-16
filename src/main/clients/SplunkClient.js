@@ -22,8 +22,10 @@ const populateSearchRange = (xmlDoc) => {
   return `${getFormattedDateTime(xmlDoc, 'earliestTime')} to ${getFormattedDateTime(xmlDoc, 'latestTime')}`;
 };
 
-const populateRequiredJobDetails = (jobBySIDResponse, jobFirstEventResponse) => {
+const populateRequiredJobDetails = (jobBySIDResponse, jobFirstEventResponse, jobSummaryResponse) => {
   const jobDetails = {};
+
+  const jobFields = jobSummaryResponse.data.fields;
 
   // eslint-disable-next-line no-underscore-dangle
   jobDetails.stackTrace = jobFirstEventResponse.data.results[0]._raw;
@@ -31,12 +33,26 @@ const populateRequiredJobDetails = (jobBySIDResponse, jobFirstEventResponse) => 
   jobDetails.occurences = getNodeValueByNodeName(xmlDoc, 'eventCount');
   jobDetails.searchRange = populateSearchRange(xmlDoc);
   jobDetails.searchString = getNodeValueByNodeName(xmlDoc, 'custom.search');
+  jobDetails.fields = [...Object.entries(jobFields)]
+    .map(([key, value]) => {
+      return {
+        key,
+        value: value.modes.map((mode) => `${mode.value} (${mode.count})`).join(', '),
+      };
+    })
+    .reduce((accumulator, entry) => {
+      return {
+        ...accumulator,
+        [entry.key]: entry.value,
+      };
+    }, []);
 
   return jobDetails;
 };
 
 const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, credential }) => {
   const retrieveJobBySIDUrl = `${splunkAPIURL}/nobody/${splunkApp}/search/jobs/${searchId}`;
+  const retrieveJobSummaryUrl = `${retrieveJobBySIDUrl}/summary?output_mode=json`;
   const retrieveJobFirstEventUrl = `${splunkAPIURL}/nobody/${splunkApp}/search/jobs/${searchId}/events?count=1&f=_raw&output_mode=json`;
 
   const auth = { username: credential.username, password: credential.password };
@@ -50,10 +66,13 @@ const splunkJobDetailsRetriever = () => ({ splunkAPIURL, splunkApp, searchId, cr
         axios.get(retrieveJobFirstEventUrl, {
           auth,
         }),
+        axios.get(retrieveJobSummaryUrl, {
+          auth,
+        }),
       ])
       .then(
-        axios.spread((jobBySIDResponse, jobFirstEventResponse) => {
-          const populatedJobDetails = populateRequiredJobDetails(jobBySIDResponse, jobFirstEventResponse);
+        axios.spread((jobBySIDResponse, jobFirstEventResponse, jobSummary) => {
+          const populatedJobDetails = populateRequiredJobDetails(jobBySIDResponse, jobFirstEventResponse, jobSummary);
           resolve(populatedJobDetails);
         }),
       )
