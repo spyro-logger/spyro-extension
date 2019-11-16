@@ -11,6 +11,7 @@ import Header from './Header';
 import { SettingsContextProvider } from './SettingsContext';
 import TemplateSelector from './TemplateSelector';
 import getCurrentSplunkUrl from '../utils/getCurrentSplunkUrl';
+import removeUrlParameter from '../utils/removeUrlParameter';
 import Credentials from '../utils/Credentials';
 import JiraSubmitter from './JiraSubmitter';
 import InfoPaper from './InfoPaper';
@@ -144,8 +145,7 @@ function Popup() {
               splunk_event_content: response.stackTrace,
               splunk_search_range: response.searchRange,
               splunk_search_string: response.searchString,
-              splunk_search_url_without_sid: 'http://splunk.com',
-              jira_instance_credentials_username: 'user1',
+              splunk_search_url_without_sid: removeUrlParameter(url, 'sid'),
               ...jobSummaryFields,
             };
             setSplunkSearchDetails(details);
