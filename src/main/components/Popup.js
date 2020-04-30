@@ -91,7 +91,8 @@ async function createAndUpdateEventType(
 ) {
   const { splunkInstance, splunkApp } = selectedTemplate;
   const credential = await Credentials.getEntryByKey(splunkInstance);
-  const splunkAPIURL = getSplunkRestUrl(applicationSettings.shared.splunk.instances, splunkInstance, 'restAPIURL');
+  const { spyroServerBaseUrl, splunk } = applicationSettings.shared;
+  const splunkAPIURL = getSplunkRestUrl(splunk.instances, splunkInstance, 'restAPIURL');
 
   if (!splunkAPIURL) {
     return Promise.reject(new Error('No Splunk API URL specified'));
@@ -101,9 +102,22 @@ async function createAndUpdateEventType(
     return Promise.reject(new Error('Splunk application is not specified'));
   }
 
-  await SplunkClient.createEventType(credential, splunkAPIURL, splunkApp, jiraIdentifier, searchString);
+  await SplunkClient.createEventType(
+    spyroServerBaseUrl,
+    credential,
+    splunkAPIURL,
+    splunkApp,
+    jiraIdentifier,
+    searchString,
+  );
   showEnqueueSnackbar('New event created successfully!', 'success', enqueueSnackbar);
-  return SplunkClient.updateEventTypePermission(credential, splunkAPIURL, splunkApp, jiraIdentifier);
+  return SplunkClient.updateEventTypePermission(
+    spyroServerBaseUrl,
+    credential,
+    splunkAPIURL,
+    splunkApp,
+    jiraIdentifier,
+  );
 }
 
 function Popup() {
@@ -121,7 +135,8 @@ function Popup() {
     getCurrentSplunkUrl().then(async (url) => {
       const { splunkInstance, splunkApp } = selectedTemplate;
       Credentials.getEntryByKey(splunkInstance).then((credential) => {
-        const splunkAPIURL = getSplunkRestUrl(applicationSettings.shared.splunk.instances, splunkInstance);
+        const { spyroServerBaseUrl, splunk } = applicationSettings.shared;
+        const splunkAPIURL = getSplunkRestUrl(splunk.instances, splunkInstance);
 
         if (!splunkAPIURL) {
           return Promise.reject(new Error('No Splunk API URL specified'));
@@ -133,9 +148,9 @@ function Popup() {
 
         const { sid } = queryString.parse(url);
         const splunkJobDetailsRetriever = SplunkClient.splunkJobDetailsRetriever();
-
-        return splunkJobDetailsRetriever({ splunkAPIURL, splunkApp, searchId: sid, credential })
-          .then((response) => {
+        return splunkJobDetailsRetriever({ spyroServerBaseUrl, splunkAPIURL, splunkApp, searchId: sid, credential })
+          .then((responseData) => {
+            const response = responseData.data;
             const jobSummaryFields = [...Object.entries(response.fields)]
               .map(([key, value]) => [`splunk:fields:${key}`, value])
               .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
@@ -151,6 +166,7 @@ function Popup() {
             setSplunkSearchDetails(details);
             setSplunkRetrievalInProgress(false);
             setSplunkRetrievalSuccess(true);
+            setError(null);
           })
           .catch(() => {
             setSplunkRetrievalInProgress(false);
@@ -167,7 +183,8 @@ function Popup() {
   async function onSubmit(populatedFieldValues, selectedTemplate, applicationSettings, searchString) {
     const { jiraInstance } = selectedTemplate;
     const jiraCredential = await Credentials.getEntryByKey(jiraInstance);
-    const jiraHost = getJiraHost(applicationSettings.shared.jira.instances, jiraInstance);
+    const { spyroServerBaseUrl, jira } = applicationSettings.shared;
+    const jiraHost = getJiraHost(jira.instances, jiraInstance);
 
     if (!jiraHost) {
       return Promise.reject(new Error('Jira host is not specified'));
@@ -176,9 +193,14 @@ function Popup() {
     setSubmissionInProgress(true);
 
     try {
-      const createIssueResponse = await JiraClient.createIssue(jiraHost, jiraCredential, populatedFieldValues);
+      const createIssueResponse = await JiraClient.createIssue(
+        spyroServerBaseUrl,
+        jiraHost,
+        jiraCredential,
+        populatedFieldValues,
+      );
       showEnqueueSnackbar('JIRA created successfully!', 'success', enqueueSnackbar);
-      const jiraIdentifier = createIssueResponse.key;
+      const jiraIdentifier = createIssueResponse.data.key;
       openCreatedIssue(jiraHost, jiraIdentifier);
 
       await createAndUpdateEventType(
